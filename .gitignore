@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.vs/
+*.user
+back_ups/
+schema.sqlite
