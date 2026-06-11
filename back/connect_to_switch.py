@@ -1,6 +1,6 @@
 from netmiko import ConnectHandler
 from netmiko.exceptions import NetmikoAuthenticationException, NetmikoTimeoutException
-from data_models import connection_info, push_result, pull_result
+from back.data_models import connection_info, push_result, pull_result
 
 def push_config_to_switch(ci: connection_info, commands: list[str], save_to_startup: bool = False):
     filtered_commands = []
@@ -19,7 +19,7 @@ def push_config_to_switch(ci: connection_info, commands: list[str], save_to_star
     # netmiko input
     device_dict = {
         "device_type": ci.platform,
-        "host": ci.host,
+        "host": ci.ip,
         "username": ci.username,
         "password": ci.password,
         "fast_cli": False,         
@@ -58,7 +58,7 @@ def pull_config_from_switch(ci: connection_info):
     # netmiko input
     device_dict = {
         "device_type": ci.platform,
-        "host": ci.host,
+        "host": ci.ip,
         "username": ci.username,
         "password": ci.password,
         "fast_cli": False,         

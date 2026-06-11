@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>cb089cbc-0742-42ec-b80f-5b7676ce5eaf</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>test_d2c_and_c2d.py</StartupFile>
+    <StartupFile>front\main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -22,15 +22,35 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="back_up.py" />
-    <Compile Include="cisco_to_db.py" />
-    <Compile Include="connect_to_switch.py" />
-    <Compile Include="data_base.py" />
-    <Compile Include="data_models.py" />
+    <Compile Include="back\back_up.py" />
+    <Compile Include="back\cisco_to_db.py" />
+    <Compile Include="back\connect_to_switch.py" />
+    <Compile Include="back\data_base.py" />
+    <Compile Include="back\data_models.py" />
+    <Compile Include="back\db_to_cisco.py" />
+    <Compile Include="back\test_d2c_and_c2d.py" />
+    <Compile Include="back\test_db.py" />
+    <Compile Include="back\validate_conf.py" />
+    <Compile Include="back\__init__.py" />
+    <Compile Include="front\main.py" />
+    <Compile Include="front\test_ui_switch_list.py" />
+    <Compile Include="front\test_ui_switch_metadata.py" />
+    <Compile Include="front\test_ui_worker.py" />
+    <Compile Include="front\ui_add_switch_dialog.py" />
+    <Compile Include="front\ui_compare_panel.py" />
+    <Compile Include="front\ui_credential_dialog.py" />
+    <Compile Include="front\ui_push_confirm_dialog.py" />
+    <Compile Include="front\ui_switch_card.py" />
+    <Compile Include="front\ui_switch_detail.py" />
+    <Compile Include="front\ui_switch_interfaces.py" />
+    <Compile Include="front\ui_switch_list.py" />
+    <Compile Include="front\ui_switch_metadata.py" />
+    <Compile Include="front\ui_switch_port_channels.py" />
+    <Compile Include="front\ui_switch_static_routes.py" />
+    <Compile Include="front\ui_switch_svis.py" />
+    <Compile Include="front\ui_switch_vlans.py" />
+    <Compile Include="front\ui_worker.py" />
     <Compile Include="switchConfigurator.py" />
-    <Compile Include="test_d2c_and_c2d.py" />
-    <Compile Include="test_db.py" />
-    <Compile Include="db_to_cisco.py" />
   </ItemGroup>
   <ItemGroup>
     <Interpreter Include=".venv\">
@@ -45,7 +65,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".gitignore" />
-    <Content Include="schema.sqlite" />
+    <Content Include="back\schema.sql" />
+    <Content Include="front\style.qss" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="back\" />
+    <Folder Include="front\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

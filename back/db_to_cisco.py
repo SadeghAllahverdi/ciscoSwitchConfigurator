@@ -1,4 +1,4 @@
-from data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
+from back.data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
 
 def generate_conf(switch_conf: conf):
     

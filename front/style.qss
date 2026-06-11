@@ -1,0 +1,278 @@
+/* ============================================================ */
+/*  Switch card                                                 */
+/* ============================================================ */
+
+#switch_card {
+    background-color: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    border-left: 3px solid #2a2a2a;
+}
+
+#switch_card:hover {
+    border: 1px solid #5294e2;
+    border-left: 3px solid #5294e2;
+}
+
+#switch_card[selected="true"] {
+    background-color: #1a2535;
+    border: 1px solid #5294e2;
+    border-left: 3px solid #5294e2;
+}
+
+#card_field_header {
+    color: #555;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+#card_name {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#card_host {
+    color: #b8c0cc;
+}
+
+#card_ip {
+    color: #5294e2;
+    font-family: "Consolas", monospace;
+}
+
+#card_loc {
+    color: #707070;
+}
+
+#card_sep {
+    color: #404040;
+}
+
+#card_platform_tag {
+    color: #b8c0cc;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    padding: 2px 7px;
+    font-size: 10px;
+}
+
+#page_title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+#page_subtitle {
+    color: #707070;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+/* ============================================================ */
+/* Add Switch Dialog                                            */
+/* ============================================================ */
+
+QDialog {
+    background-color: #0d0d0d; /* Match the main app background */
+}
+
+/* Style the tiny headers in your _field_stack */
+QDialog QLabel {
+    color: #707070;
+}
+
+/* Style all Input fields (QLineEdit, QTextEdit, QSpinBox, QComboBox) */
+QLineEdit, 
+QTextEdit, 
+QComboBox {
+    background-color: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #ffffff;
+    padding: 6px;
+    selection-background-color: #5294e2;
+}
+
+
+QLineEdit:focus, 
+QTextEdit:focus, 
+QComboBox:focus {
+    border: 1px solid #5294e2;
+}
+
+/* Specific styling for the Platform dropdown */
+QComboBox::drop-down {
+    border: 0px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    selection-background-color: #5294e2;
+    outline: 0px;
+}
+
+/* Style the Save/Cancel Buttons */
+QPushButton {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    color: #b8c0cc;
+    padding: 6px 15px;
+    font-weight: 600;
+}
+
+QPushButton:hover {
+    border: 1px solid #5294e2;
+    color: #ffffff;
+}
+
+QPushButton[text="Save"] {
+    background-color: #1a2535;
+    border: 1px solid #5294e2;
+    color: #5294e2;
+}
+
+QPushButton[text="Save"]:hover {
+    background-color: #5294e2;
+    color: #ffffff;
+}
+
+QPushButton[text="Save"]:disabled {
+    background-color: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    color: #555;
+}
+/* ============================================================ */
+/* Tab widget (switch detail)                                   */
+/* ============================================================ */
+
+QTabWidget::pane {
+    border: none;
+    background-color: #0d0d0d;
+}
+
+QTabBar::tab {
+    background-color: #1a1a1a;
+    color: #888;
+    padding: 8px 18px;
+    border: 1px solid #2a2a2a;
+    border-bottom: none;
+}
+
+QTabBar::tab:selected {
+    background-color: #0d0d0d;
+    color: #ffffff;
+    border-bottom: 2px solid #5294e2;
+}
+
+QTabBar::tab:hover:!selected {
+    color: #ffffff;
+}
+/* ===================================================================== */
+/* Table Widget (VLANs, SVIs, Interfaces, Port-Channels, Static Routes)  */
+/* ===================================================================== */
+
+QTableWidget {
+    alternate-background-color: #121212;
+    color: #ffffff;
+    border: 1px solid #2a2a2a;
+    gridline-color: #2a2a2a;
+    selection-background-color: #1a2535;
+    selection-color: #ffffff;
+}
+
+QHeaderView::section {
+    background-color: #1a1a1a;
+    color: #888;
+    padding: 4px 8px;
+    border: none;
+    border-right: 1px solid #2a2a2a;
+    border-bottom: 1px solid #2a2a2a;
+    font-weight: bold;
+}
+
+QTableWidget::item {
+    padding: 4px;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+QTableWidget::item:selected {
+    border: 1px solid #5294e2;
+}
+
+/* ===================================================================== */
+/* Compare                                                               */
+/* ===================================================================== */
+
+#compare_plus {
+    font-size: 40px;
+    border-radius: 55px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    color: #b8c0cc;
+}
+
+#compare_plus:hover {
+    border: 1px solid #5294e2;
+    color: #ffffff;
+    background-color: #1a2535;
+}
+
+#compare_hint {
+    color: #555;
+}
+
+#compare_choice_box {
+    background-color: #121212;
+    border: 1px solid #2a2a2a;
+}
+
+#compare_choice_button {
+    text-align: left;
+    background-color: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #b8c0cc;
+    padding: 8px 12px;
+}
+
+#compare_choice_button:hover {
+    border: 1px solid #5294e2;
+    color: #ffffff;
+    background-color: #1a2535;
+}
+
+#switch_picker_title {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+#switch_picker_count {
+    color: #707070;
+    font-size: 11px;
+}
+
+#switch_picker_list {
+    background-color: #0d0d0d;
+    border: 1px solid #2a2a2a;
+    color: #ffffff;
+    outline: none;
+}
+
+#switch_picker_list::item {
+    padding: 8px;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+#switch_picker_list::item:selected {
+    background-color: #1a2535;
+    color: #ffffff;
+    border: 1px solid #5294e2;
+}
+
+QToolTip {
+    background-color: #121212;
+    color: #d0d0d0;
+    border: 1px solid #333;
+    padding: 6px;
+}
