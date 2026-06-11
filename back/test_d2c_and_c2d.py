@@ -1,7 +1,6 @@
-from code import interact
-from cisco_to_db import parse_conf
-from db_to_cisco import generate_conf
-from data_models import switch_device
+from back.cisco_to_db import parse_conf
+from back.db_to_cisco import generate_conf
+from back.data_models import switch_device
 
 test_configuration = """
 hostname test_switch

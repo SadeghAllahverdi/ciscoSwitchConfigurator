@@ -1,10 +1,10 @@
 import re
 from ciscoconfparse2 import CiscoConfParse
-from data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
+from back.data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
 
 def parse_conf(raw_switch_config: str, switch: switch_device):
     parsed_switch_conf = CiscoConfParse(config=raw_switch_config)
-    switch_conf = conf()
+    switch_conf = conf(switch=switch)
 
     # switch
     switch_conf.switch.hostname = parsed_switch_conf.re_match_iter_typed(regexspec=r"^hostname\s+(\S+)",group=1,result_type=str, default="UNKNOWN_HOSTNAME")
@@ -159,13 +159,13 @@ def parse_conf(raw_switch_config: str, switch: switch_device):
                 elif line.startswith("switchport access vlan "):
                     new_interface.mode = "access"
                     try:
-                        new_interface.access_vlan = int(line.split()[-1])
+                        new_interface.access_vlan_id = int(line.split()[-1])
                     except ValueError:
                         print(f"weird access vlan: {line}")
 
                 elif line.startswith("switchport voice vlan "):
                     try:
-                        new_interface.voice_vlan = int(line.split()[-1])
+                        new_interface.voice_vlan_id = int(line.split()[-1])
                     except ValueError:
                         print(f"weird voice vlan: {line}")
 

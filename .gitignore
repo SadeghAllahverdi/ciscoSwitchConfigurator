@@ -1,8 +1,25 @@
-.venv/
+# python
 __pycache__/
 *.pyc
 *.pyo
+
+# virtual environment
+.venv/
+
+# pyinstaller output (rebuildable - spec file and hooks/ stay committed on purpose)
+build/
+dist/
+
+# real switch data - never push this
+*.sqlite
+last_pull.txt
+back/back_ups/
+
+# visual studio
 .vs/
 *.user
-back_ups/
-schema.sqlite
+*.suo
+
+# windows junk
+Thumbs.db
+desktop.ini

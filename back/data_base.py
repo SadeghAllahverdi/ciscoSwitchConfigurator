@@ -1,7 +1,9 @@
+import os
 import sqlite3
-from data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
+from back.data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
 
-db_schema_file_path = "schema.sqlite"
+current_dir = os.path.dirname(os.path.abspath(__file__))
+db_schema_file_path = os.path.join(current_dir, "schema.sql")
 
 def boolean_to_int(b: bool):
     return 1 if b else 0

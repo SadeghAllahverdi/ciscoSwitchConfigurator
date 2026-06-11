@@ -1,10 +1,10 @@
 import os
 print(f"working dir: {os.getcwd()}")
-print(f"schema exists here: {os.path.exists('schema.sqlite')}")
+print(f"schema exists here: {os.path.exists('schema.sql')}")
 
 import tempfile
-from data_base import DataBase
-from data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
+from back.data_base import DataBase
+from back.data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
 
 
 
@@ -96,6 +96,7 @@ def main():
             print("All tests completed successfully")
         finally:
             db.close()
+            del db
 
 if __name__ == "__main__":
     main()
