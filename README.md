@@ -2,7 +2,9 @@
 
 SwitchConfigurator is a Python desktop application for managing Cisco switch configurations from a local database. It provides a PyQt6 interface for registering switches, editing VLANs, SVIs, interfaces, port-channels, and static routes, comparing saved configs against live or saved references, and pushing generated configuration commands to real switches.
 
-<img src="docs/demo.gif" alt="SwitchConfigurator demo" width="800">
+<p align="center">
+  <img src="./docs/demo.gif" alt="SwitchConfigurator demo" width="800">
+</p>
 
 ## Features
 
