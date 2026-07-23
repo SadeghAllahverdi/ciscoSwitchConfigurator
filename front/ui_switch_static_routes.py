@@ -134,6 +134,7 @@ class routes_tab(QWidget):
         self.table.setItem(row, 3, QTableWidgetItem(""))
         self.table.setItem(row, 4, QTableWidgetItem(""))
         self.table.setItem(row, 5, QTableWidgetItem(""))
+        self._schedule_revalidation()
 
     def _on_delete_row(self):
         current_row = self.table.currentRow()

@@ -1,6 +1,18 @@
 import os
 import sys
 
+# make "back.*" importable when started directly with "python front/main.py"
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
+# in a windowed (no-console) PyInstaller build stdout/stderr are None, but
+# ciscoconfparse2 wires loguru to sys.stdout at import time and crashes on it
+if sys.stdout is None:
+    sys.stdout = open(os.devnull, "w", encoding="utf-8")
+if sys.stderr is None:
+    sys.stderr = open(os.devnull, "w", encoding="utf-8")
+
 from PyQt6.QtWidgets import QApplication
 
 from back.data_base import DataBase
