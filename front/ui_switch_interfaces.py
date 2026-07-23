@@ -125,7 +125,7 @@ class interfaces_tab(QWidget):
             self.table.setCellWidget(row, 9, stp_combo)
 
             speed_combo = QComboBox()
-            speed_combo.addItems(["auto", "10", "100", "1000", "10000"])
+            speed_combo.addItems(["auto", "10", "100", "1000", "2500", "5000", "10000", "25000", "40000", "100000"])
             speed_combo.setCurrentText(i.speed)
             self.table.setCellWidget(row, 10, speed_combo)
 
@@ -342,7 +342,7 @@ class interfaces_tab(QWidget):
         self.table.setCellWidget(row, 9, stp_combo)
 
         speed_combo = QComboBox()
-        speed_combo.addItems(["auto", "10", "100", "1000", "10000"])
+        speed_combo.addItems(["auto", "10", "100", "1000", "2500", "5000", "10000", "25000", "40000", "100000"])
         self.table.setCellWidget(row, 10, speed_combo)
 
         duplex_combo = QComboBox()

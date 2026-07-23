@@ -1,10 +1,28 @@
+import ipaddress
 from back.data_models import switch_device, vlan, svi, interface, port_channel, static_route, back_up, conf
 
+def _route_destination_for_platform(destination: str, platform: str):
+    # db stores prefix notation (10.0.0.0/8). ios wants "10.0.0.0 255.0.0.0".
+    if platform == "cisco_nxos" or "/" not in destination:
+        return destination
+    try:
+        net = ipaddress.ip_network(destination, strict=False)
+        return f"{net.network_address} {net.netmask}"
+    except ValueError:
+        return destination
+
 def generate_conf(switch_conf: conf):
-    
+
+    is_nxos = switch_conf.switch.platform == "cisco_nxos"
+
     output: list[str] = []
     output.append(f"! Config for {switch_conf.switch.name} (platform: {switch_conf.switch.platform})")
     output.append(f"configure terminal")
+    # nxos needs these features enabled before SVI / HSRP commands work
+    if is_nxos and switch_conf.svis:
+        output.append("feature interface-vlan")
+        if any(vi.hsrp_group is not None and vi.hsrp_virtual_ip for vi in switch_conf.svis):
+            output.append("feature hsrp")
     # vlans
     for v in switch_conf.vlans:
         output.append(f"vlan {v.vlan_id}")
@@ -20,8 +38,10 @@ def generate_conf(switch_conf: conf):
         if p.description:
             output.append(f"  description {p.description}")
         if p.mode == "access":
+            output.append("  switchport")
             output.append("  switchport mode access")
         elif p.mode == "trunk":
+            output.append("  switchport")
             output.append("  switchport mode trunk")
             if p.native_vlan_id is not None:
                 output.append(f"  switchport trunk native vlan {p.native_vlan_id}")
@@ -32,7 +52,7 @@ def generate_conf(switch_conf: conf):
         if p.stp_port_type:
             output.append(f"  spanning-tree port type {p.stp_port_type}")
         # nexos specifc
-        if switch_conf.switch.platform == "cisco_nxos":
+        if is_nxos:
             if p.vpc_peer_link:
                 output.append("  vpc peer-link")
             elif p.vpc_id is not None:
@@ -50,7 +70,7 @@ def generate_conf(switch_conf: conf):
             output.append(f"  speed {i.speed}")
         if i.duplex and i.duplex != "auto":
             output.append(f"  duplex {i.duplex}")
-        if i.mtu is not None:
+        if i.mtu is not None and i.mtu != 1500:
             output.append(f"  mtu {i.mtu}")
         if i.mode == "access":
             output.append("  switchport")
@@ -87,7 +107,7 @@ def generate_conf(switch_conf: conf):
             output.append(f"  description {vi.description}")
         if vi.vrf:
             # nxos: vrf member X
-            if switch_conf.switch.platform == "cisco_nxos":
+            if is_nxos:
                 output.append(f"  vrf member {vi.vrf}")
             # ios: vrf forwarding X
             else:
@@ -96,23 +116,27 @@ def generate_conf(switch_conf: conf):
             output.append(f"  ip address {vi.primary_ip_address}")
         if vi.secondary_ip_address:
             output.append(f"  ip address {vi.secondary_ip_address} secondary")
-        if vi.mtu is not None:
+        if vi.mtu is not None and vi.mtu != 1500:
             output.append(f"  mtu {vi.mtu}")
         if vi.hsrp_group is not None and vi.hsrp_virtual_ip:
-            output.append(f"  hsrp {vi.hsrp_group}")
-            output.append(f"    ip {vi.hsrp_virtual_ip}")
+            if is_nxos:
+                output.append(f"  hsrp {vi.hsrp_group}")
+                output.append(f"    ip {vi.hsrp_virtual_ip}")
+            else:
+                output.append(f"  standby {vi.hsrp_group} ip {vi.hsrp_virtual_ip}")
         if vi.shutdown:
             output.append("  shutdown")
         else:
             output.append("  no shutdown")
     # static routes
     for sr in switch_conf.static_routes:
+        destination = _route_destination_for_platform(sr.destination_network, switch_conf.switch.platform)
         # nxos
         command_parts = ["ip route"]
         # ios
-        if sr.vrf and switch_conf.switch.platform != "cisco_nxos":
+        if sr.vrf and not is_nxos:
             command_parts = ["ip route", f"vrf {sr.vrf}"]
-        command_parts.append(sr.destination_network)
+        command_parts.append(destination)
         command_parts.append(sr.next_hop)
         if sr.admin_distance is not None:
             command_parts.append(str(sr.admin_distance))
@@ -120,7 +144,7 @@ def generate_conf(switch_conf: conf):
             command_parts.append(f"track {sr.track}")
         command = " ".join(command_parts)
         #nxos
-        if sr.vrf and switch_conf.switch.platform == "cisco_nxos":
+        if sr.vrf and is_nxos:
             output.append(f"vrf context {sr.vrf}")
             output.append(f"  {command}")
             output.append("exit")

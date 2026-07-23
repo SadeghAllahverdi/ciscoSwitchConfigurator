@@ -42,15 +42,53 @@ class DataBase:
         except sqlite3.Error as e:
             raise RuntimeError(f"Error connecting to database: {e}")
 
-        try: 
+        try:
             with open(db_schema_file_path, "r") as f:
                 schema = f.read()
             self.cur.executescript(schema)
+            self._migrate_old_tables(schema)
         except FileNotFoundError:
             raise RuntimeError(f"Database schema file not found at path: {db_schema_file_path}")
         except sqlite3.Error as e:
             raise RuntimeError(f"Error executing database schema: {e}")
-    
+
+    def _table_sql(self, table_name: str):
+        row = self.cur.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?",
+            (table_name,)
+        ).fetchone()
+        return row["sql"] if row else ""
+
+    def _migrate_old_tables(self, schema: str):
+        # existing databases were created with stricter CHECK constraints
+        # (hsrp_group max 255, short speed list). CREATE TABLE IF NOT EXISTS
+        # keeps the old definition, so rebuild those tables with the new one.
+        to_rebuild = []
+        if "BETWEEN 0 AND 255" in self._table_sql("svis"):
+            to_rebuild.append("svis")
+        if "'100000'" not in self._table_sql("interfaces"):
+            to_rebuild.append("interfaces")
+        if not to_rebuild:
+            return
+
+        self.cur.execute("PRAGMA foreign_keys = OFF")
+        try:
+            for table in to_rebuild:
+                self.cur.execute(f"ALTER TABLE {table} RENAME TO {table}_old")
+            # recreates the renamed tables with the new definitions
+            self.cur.executescript(schema)
+            for table in to_rebuild:
+                self.cur.execute(f"INSERT INTO {table} SELECT * FROM {table}_old")
+                self.cur.execute(f"DROP TABLE {table}_old")
+            # dropping the old tables removed their indexes, recreate them
+            self.cur.executescript(schema)
+            self.con.commit()
+        except sqlite3.Error as e:
+            self.con.rollback()
+            raise RuntimeError(f"Error migrating database tables {to_rebuild}: {e}")
+        finally:
+            self.cur.execute("PRAGMA foreign_keys = ON")
+
     def close(self):
         self.cur.close()
         self.con.close()
@@ -141,13 +179,13 @@ class DataBase:
         except sqlite3.Error as e:
             raise RuntimeError(f"Error flagging last push to last_push_status to in_progress for the switch in database: {e}")
 
-    def flag_last_push(self, switch_id: int, success: bool, error: str = ""):   # sets last_push_status and last_push_error
+    def flag_last_push(self, switch_id: int, success: bool, error: str = ""):   # sets last_push_status, last_push_error and last_pushed_at
         try:
             status = "success" if success else "failure"
             self.cur.execute(
                 """
                 UPDATE switches
-                SET last_push_status = ?, last_push_error = ?
+                SET last_push_status = ?, last_push_error = ?, last_pushed_at = CURRENT_TIMESTAMP
                 WHERE id = ?
                 """,
                 (status, error, switch_id)
@@ -170,17 +208,19 @@ class DataBase:
         except sqlite3.Error as e:
             raise RuntimeError(f"Error flagging last_pulled_at for the switch in database: {e}")
 
+    # note: the overwrite_* methods do not commit on their own. the caller
+    # (save_switch_conf_in_db) commits once at the end so a failure half way
+    # through never leaves a switch with deleted or partial sections.
     def overwrite_switch_vlans_in_db(self, switch_id: int, vlans: list[vlan]):
         try:
             self.cur.execute(
                 """
-                DELETE FROM vlans 
+                DELETE FROM vlans
                 WHERE switch_id = ?
                 """,
                 (switch_id,)
                 )
-            self.con.commit()
-            for vlan in vlans: 
+            for vlan in vlans:
                 self.cur.execute(
                     """
                     INSERT INTO vlans (switch_id, vlan_id, name, state, shutdown, note)
@@ -188,7 +228,6 @@ class DataBase:
                     """,
                     (switch_id, vlan.vlan_id, vlan.name, vlan.state, boolean_to_int(vlan.shutdown), vlan.note)
                 )
-                self.con.commit()
         except sqlite3.Error as e:
             raise RuntimeError(f"Error overwriting switch vlans in database: {e}")
 
@@ -228,7 +267,6 @@ class DataBase:
                 """,
                 (switch_id,)
                 )
-            self.con.commit()
             for svi in svis:
                 self.cur.execute(
                     """
@@ -237,7 +275,6 @@ class DataBase:
                     """,
                     (switch_id, svi.vlan_ref_id, svi.description, svi.primary_ip_address, svi.secondary_ip_address, svi.hsrp_group, svi.hsrp_virtual_ip, svi.vrf, svi.mtu, boolean_to_int(svi.shutdown), svi.note)
                 )
-                self.con.commit()
         except sqlite3.Error as e:
             raise RuntimeError(f"Error overwriting switch svis in database: {e}")
 
@@ -282,7 +319,6 @@ class DataBase:
                 """,
                 (switch_id,)
                 )
-            self.con.commit()
             for interface in interfaces:
                 self.cur.execute(
                     """
@@ -291,7 +327,6 @@ class DataBase:
                     """,
                     (switch_id, interface.name, interface.description, interface.mode, interface.access_vlan_id, interface.voice_vlan_id, interface.allowed_vlan_ids, interface.native_vlan_id, interface.port_channel, interface.lacp_mode, interface.stp_port_type, interface.speed, interface.duplex, interface.mtu, boolean_to_int(interface.shutdown), interface.note)
                     )
-                self.con.commit()
         except sqlite3.Error as e:
             raise RuntimeError(f"Error overwriting switch interfaces in database: {e}")
 
@@ -341,7 +376,6 @@ class DataBase:
                 """,
                 (switch_id,)
                 )
-            self.con.commit()
             for port_channel in port_channels:
                 self.cur.execute(
                     """
@@ -350,7 +384,6 @@ class DataBase:
                     """,
                     (switch_id, port_channel.po_number, port_channel.description, port_channel.mode, port_channel.allowed_vlan_ids, port_channel.native_vlan_id, port_channel.stp_port_type, port_channel.vpc_id, port_channel.vpc_peer_link, boolean_to_int(port_channel.shutdown), port_channel.note)
                     )
-                self.con.commit()
         except sqlite3.Error as e:
             raise RuntimeError(f"Error overwriting switch port channels in database: {e}")
 
@@ -395,7 +428,6 @@ class DataBase:
                 """,
                 (switch_id,)
                 )
-            self.con.commit()
             for static_route in static_routes:
                 self.cur.execute(
                     """
@@ -404,7 +436,6 @@ class DataBase:
                     """,
                     (switch_id, static_route.destination_network, static_route.next_hop, static_route.vrf, static_route.admin_distance, static_route.track, static_route.note)
                     )
-                self.con.commit()
         except sqlite3.Error as e:
             raise RuntimeError(f"Error overwriting switch static routes in database: {e}")
 
@@ -494,7 +525,7 @@ class DataBase:
         )
         return c
 
-    def save_switch_conf_in_db(self, conf: conf):            
+    def save_switch_conf_in_db(self, conf: conf):
         try:
             if conf.switch.id is None:
                 switch_id = self.add_switch_to_db(conf.switch)
@@ -502,13 +533,16 @@ class DataBase:
             else:
                 switch_id = conf.switch.id
                 self.update_switch(conf.switch)
-            
+
             self.overwrite_switch_vlans_in_db(switch_id, conf.vlans)
             self.overwrite_switch_svis_in_db(switch_id, conf.svis)
             self.overwrite_switch_interfaces_in_db(switch_id, conf.interfaces)
             self.overwrite_switch_port_channels_in_db(switch_id, conf.port_channels)
             self.overwrite_switch_static_routes_in_db(switch_id, conf.static_routes)
 
+            self.con.commit()
             return switch_id
-        except sqlite3.Error as e:
-            raise RuntimeError(f"Error saving switch conf in database: {e}")
+        except Exception:
+            # keep the previously saved config instead of a half written one
+            self.con.rollback()
+            raise

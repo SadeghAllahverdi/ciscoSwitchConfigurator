@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS svis (
     primary_ip_address TEXT NOT NULL DEFAULT '',
     secondary_ip_address TEXT NOT NULL DEFAULT '',
     hsrp_group INTEGER
-        CHECK(hsrp_group IS NULL OR hsrp_group BETWEEN 0 AND 255),
+        CHECK(hsrp_group IS NULL OR hsrp_group BETWEEN 0 AND 4095),   -- HSRPv2 / NX-OS allows 0-4095
     hsrp_virtual_ip TEXT NOT NULL DEFAULT '',
     vrf TEXT NOT NULL DEFAULT '',
     mtu INTEGER NOT NULL DEFAULT 1500
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS interfaces (
 	stp_port_type TEXT
 		 CHECK(stp_port_type IS NULL OR stp_port_type IN ('', 'edge', 'network', 'normal')),
 	speed TEXT NOT NULL DEFAULT 'auto'
-		 CHECK(speed IN ('auto', '10', '100', '1000', '10000')),
+		 CHECK(speed IN ('auto', '10', '100', '1000', '2500', '5000', '10000', '25000', '40000', '100000')),
 	duplex TEXT NOT NULL DEFAULT ''
 		 CHECK(duplex IN ('', 'auto', 'half', 'full')),
 	mtu INTEGER NOT NULL DEFAULT 1500

@@ -234,8 +234,8 @@ class svis_tab(QWidget):
         if not text.isdigit():
             return False, "Must be a number"
         n = int(text)
-        if n < 0 or n > 255:
-            return False, "Must be 0-255"
+        if n < 0 or n > 4095:
+            return False, "Must be 0-4095"
         return True, ""
 
     def _check_mtu(self, text):

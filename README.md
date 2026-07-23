@@ -2,12 +2,7 @@
 
 SwitchConfigurator is a Python desktop application for managing Cisco switch configurations from a local database. It provides a PyQt6 interface for registering switches, editing VLANs, SVIs, interfaces, port-channels, and static routes, comparing saved configs against live or saved references, and pushing generated configuration commands to real switches.
 
-<p align="center">
-  <img src="./docs/demo.gif" alt="SwitchConfigurator demo" width="85%">
-</p>
-<p align="center">
-  <em>Demo of the main configuration workflow.</em>
-</p>
+The main application entry point is `front/main.py`.
 
 ## Features
 
@@ -165,11 +160,14 @@ Before saving or pushing, the app checks for common configuration problems such 
 - duplicate interface names
 - duplicate port-channels
 - duplicate static routes
-- SVI references to missing VLANs
-- interface VLAN references to missing VLANs
-- invalid allowed VLAN lists
-- port-channel references that do not exist
-- invalid MTU or VLAN ranges
+- SVI references to missing VLANs (the database enforces this too)
+- invalid allowed VLAN list syntax
+- invalid MTU or VLAN ranges (checked in the editor tables)
+
+Interface access/voice/native/allowed VLANs may reference VLANs that are not
+declared on the switch, and channel-groups may reference port-channels that do
+not exist yet — both are legal on real Cisco devices, so they do not block
+saving.
 
 Validation logic lives in:
 
@@ -321,3 +319,4 @@ switchConfigurator/
 - The application is designed for Cisco platforms listed in the UI: `cisco_nxos`, `cisco_ios`, and `cisco_iosxe`.
 - Real switch data is intentionally ignored by Git through `*.sqlite` and `back/back_ups/`.
 - The app generates configuration commands from the saved database state, so save editor changes before pushing if you want those changes included.
+- Always review the push preview before sending commands to a live switch.
